@@ -14,11 +14,11 @@ from WebSocketSharp import WebSocket
 #---------------------------------------
 #   [Required] Script Information
 #---------------------------------------
-ScriptName = "SocketReceiver"
-Website = "https://github.com/nossebro/SocketReceiver"
+ScriptName = "TwitchRewardSoundEffects"
+Website = "https://github.com/nossebro/TwitchRewardSoundEffects"
 Creator = "nossebro"
-Version = "0.0.2"
-Description = "Read events from the local SLCB socket"
+Version = "0.0.1"
+Description = "Play sound effects depending on Twitch (Channel Points) Reward IDs"
 
 #---------------------------------------
 #   Script Variables
@@ -213,7 +213,7 @@ def LocalSocketConnected(ws, data):
 		"author": Creator,
 		"website": Website,
 		"api_key": LocalAPI["Key"],
-		"events": ScriptSettings.Events.split(",")
+		"events": [ "TWITCH_REWARD_V1" ]
 	}
 	ws.Send(json.dumps(Auth))
 	Logger.debug("Auth: {0}".format(json.dumps(Auth)))
@@ -253,5 +253,10 @@ def LocalSocketEvent(ws, data):
 			global LocalSocketIsConnected
 			LocalSocketIsConnected = True
 			Logger.info(event["data"]["message"])
+		elif event["event"] == "TWITCH_REWARD_V1":
+			fname = os.path.join(os.path.dirname(__file__), "sounds", "{0}.mp3".format(event["data"]["reward_id"]))
+			Logger.debug("Looking for file: {0}".format(fname))
+			if os.path.isfile(fname):
+				Parent.PlaySound(fname, 1.0)
 		else:
 			Logger.warning("Unhandled event: {0}: {1}".format(event["event"], event["data"]))
