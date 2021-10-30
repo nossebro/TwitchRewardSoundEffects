@@ -18,7 +18,7 @@ from WebSocketSharp import WebSocket
 ScriptName = "TwitchRewardSoundEffects"
 Website = "https://github.com/nossebro/TwitchRewardSoundEffects"
 Creator = "nossebro"
-Version = "0.0.2"
+Version = "0.0.3"
 Description = "Play sound effects depending on Twitch (Channel Points) Reward IDs"
 
 #---------------------------------------
@@ -259,13 +259,8 @@ def LocalSocketEvent(ws, data):
 			fname = os.path.join(os.path.dirname(__file__), "sounds", "{0}.mp3".format(event["data"]["reward_id"]))
 			Logger.debug("Looking for file or folder: {0}".format(fname))
 			if os.path.isdir(fdir):
-				for x in os.listdir(fdir):
-					Logger.debug(x)
-					if x.lower().endswith(".mp3"):
-						Logger.debug("Yes!!!")
-					Logger.debug(os.path.join(fdir, x))
-					Logger.debug(os.path.isfile(os.path.join(fdir, x)))
-				fname = os.path.join(fdir, random.choice([x for x in os.listdir(fdir) if x.lower().endswith(".mp3") and os.path.isfile(os.path.join(fdir, x))]))
+				flist = [x for x in os.listdir(fdir) if x.lower().endswith(".mp3") and os.path.isfile(os.path.join(fdir, x))]
+				fname = os.path.join(fdir, flist[Parent.GetRandom(0, len(flist))])
 				Logger.debug("filename: {}".format(fname))
 			if os.path.isfile(fname):
 				Logger.debug("Found file: {0}".format(fname))
