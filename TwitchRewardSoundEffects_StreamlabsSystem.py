@@ -8,6 +8,7 @@ import re
 import os
 import codecs
 import json
+import random
 clr.AddReference("websocket-sharp.dll")
 from WebSocketSharp import WebSocket
 
@@ -17,7 +18,7 @@ from WebSocketSharp import WebSocket
 ScriptName = "TwitchRewardSoundEffects"
 Website = "https://github.com/nossebro/TwitchRewardSoundEffects"
 Creator = "nossebro"
-Version = "0.0.1"
+Version = "0.0.2"
 Description = "Play sound effects depending on Twitch (Channel Points) Reward IDs"
 
 #---------------------------------------
@@ -254,9 +255,20 @@ def LocalSocketEvent(ws, data):
 			LocalSocketIsConnected = True
 			Logger.info(event["data"]["message"])
 		elif event["event"] == "TWITCH_REWARD_V1":
+			fdir = os.path.join(os.path.dirname(__file__), "sounds", "{0}".format(event["data"]["reward_id"]))
 			fname = os.path.join(os.path.dirname(__file__), "sounds", "{0}.mp3".format(event["data"]["reward_id"]))
-			Logger.debug("Looking for file: {0}".format(fname))
+			Logger.debug("Looking for file or folder: {0}".format(fname))
+			if os.path.isdir(fdir):
+				for x in os.listdir(fdir):
+					Logger.debug(x)
+					if x.lower().endswith(".mp3"):
+						Logger.debug("Yes!!!")
+					Logger.debug(os.path.join(fdir, x))
+					Logger.debug(os.path.isfile(os.path.join(fdir, x)))
+				fname = os.path.join(fdir, random.choice([x for x in os.listdir(fdir) if x.lower().endswith(".mp3") and os.path.isfile(os.path.join(fdir, x))]))
+				Logger.debug("filename: {}".format(fname))
 			if os.path.isfile(fname):
+				Logger.debug("Found file: {0}".format(fname))
 				Parent.PlaySound(fname, 1.0)
 		else:
 			Logger.warning("Unhandled event: {0}: {1}".format(event["event"], event["data"]))
